@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello Bang!</string>
+    <string name="app_name">Bang!</string>
+    <string name="contact_picture">Picture of the contact</string>
+</resources>

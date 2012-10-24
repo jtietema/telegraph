@@ -1,0 +1,57 @@
+package net.tietema.bang;
+
+import android.app.Application;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+
+import java.sql.SQLException;
+import java.util.Date;
+
+/**
+ * @author jeroen
+ */
+public class BangApplication extends Application {
+
+    private DatabaseOpenHelper openHelper;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        openHelper = OpenHelperManager.getHelper(getApplicationContext(), DatabaseOpenHelper.class);
+
+        // test data
+        try {
+            Dao<Contact, String> contactDao = openHelper.getDao(Contact.class);
+
+            Contact ronald = new Contact();
+            ronald.setEmail("ronald@example.com");
+            ronald.setName("Ronald");
+            contactDao.create(ronald);
+
+            Contact nikie = new Contact();
+            nikie.setEmail("nikie@example.com");
+            nikie.setName("Nikie");
+            contactDao.create(nikie);
+
+            Dao<Message, Integer> messagesDao = openHelper.getDao(Message.class);
+
+            Message nm = new Message();
+            nm.setContact(nikie);
+            nm.setBody("Test bericht");
+            nm.setTime(new Date());
+
+            messagesDao.create(nm);
+
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+    }
+
+
+
+    public DatabaseOpenHelper getOpenHelper() {
+        return openHelper;
+    }
+}
