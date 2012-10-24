@@ -1,5 +1,6 @@
 package net.tietema.bang;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,11 +13,12 @@ import android.widget.TextView;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.squareup.otto.Subscribe;
 import roboguice.inject.InjectView;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends RoboSherlockActivity implements AdapterView.OnItemClickListener {
@@ -27,6 +29,8 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
     private ListView listView;
 
     private DatabaseOpenHelper databaseOpenHelper;
+    private BangApplication application;
+    private MessageThreadsAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,26 +38,28 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 		Log.i(TAG, "onCreate");
         setContentView(R.layout.main);
 
+        application = (BangApplication) getApplication();
+
         databaseOpenHelper = OpenHelperManager.getHelper(this, DatabaseOpenHelper.class);
 
-        try {
-            // we only select contacts with messages
-            Dao<Contact, String> contactDao = databaseOpenHelper.getDao(Contact.class);
-            Dao<Message, Integer> messagesDao = databaseOpenHelper.getDao(Message.class);
-
-            QueryBuilder<Message, Integer> messagesQb = messagesDao.queryBuilder();
-            messagesQb.groupBy("contact_id");
-            QueryBuilder<Contact, String> contactQb = contactDao.queryBuilder();
-            List<Contact> contacts = contactQb.join(messagesQb).query();
-
-            listView.setAdapter(new MessageThreadsAdapter(contacts));
-        } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
+        adapter = new MessageThreadsAdapter();
+        listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
 
+        refreshAdapter();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        application.register(this);
+        refreshAdapter();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        application.unregister(this);
     }
 
     @Override
@@ -65,17 +71,44 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
         }
     }
 
+    @Subscribe
+    public void onNewMessage(NewMessageEvent event) {
+        refreshAdapter();
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Intent openThread = new Intent(this, ThreadActivity.class);
+        openThread.putExtra("contact", ((Contact) parent.getItemAtPosition(position)).getEmail());
+        startActivity(openThread);
+    }
+
+    private void refreshAdapter() {
+        try {
+            // we only select contacts with messages
+            Dao<Contact, String> contactDao = databaseOpenHelper.getDao(Contact.class);
+            Dao<Message, Integer> messagesDao = databaseOpenHelper.getDao(Message.class);
+
+            QueryBuilder<Message, Integer> messagesQb = messagesDao.queryBuilder();
+            messagesQb.groupBy("contact_id");
+            QueryBuilder<Contact, String> contactQb = contactDao.queryBuilder();
+            List<Contact> contacts = contactQb.join(messagesQb).query();
+
+
+            adapter.setContacts(contacts);
+
+        } catch (SQLException e) {
+            throw new android.database.SQLException("Error getting conversations", e);
+        }
     }
 
     private class MessageThreadsAdapter extends BaseAdapter {
 
-        private List<Contact> contacts;
+        private List<Contact> contacts = new ArrayList<Contact>();
 
-        public MessageThreadsAdapter(List<Contact> contacts) {
+        public void setContacts(List<Contact> contacts) {
             this.contacts = contacts;
+            notifyDataSetChanged();
         }
 
         @Override

@@ -1,4 +1,6 @@
 gen/
 target/
+out/
+
 .idea/
 *.iml

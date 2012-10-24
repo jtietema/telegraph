@@ -3,4 +3,7 @@
     <string name="hello">Hello Bang!</string>
     <string name="app_name">Bang!</string>
     <string name="contact_picture">Picture of the contact</string>
+    <string name="input_hint">Type message</string>
+    <string name="send">Send</string>
+    <string name="empty_message">You can\'t send an empty message</string>
 </resources>

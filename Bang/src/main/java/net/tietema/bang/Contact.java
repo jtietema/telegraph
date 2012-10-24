@@ -6,7 +6,6 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.List;
 
 /**
  * @author jeroen
@@ -20,7 +19,7 @@ public class Contact {
     @Id
     private String email;
 
-    @ForeignCollectionField
+    @ForeignCollectionField(orderColumnName = "time", orderAscending = false)
     private ForeignCollection<Message> messages;
 
     public String getName() {

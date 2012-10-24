@@ -10,6 +10,11 @@ import java.util.Date;
  */
 @Entity
 public class Message {
+    // message status codes
+    public static int STATUS_PENDING    = 0;
+    public static int STATUS_SENT       = 1;
+    public static int STATUS_RECEIVED   = 2;
+
     @Id
     @GeneratedValue
     private long id;

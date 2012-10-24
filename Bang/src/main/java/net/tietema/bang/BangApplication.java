@@ -3,6 +3,7 @@ package net.tietema.bang;
 import android.app.Application;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
+import com.squareup.otto.Bus;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -13,6 +14,8 @@ import java.util.Date;
 public class BangApplication extends Application {
 
     private DatabaseOpenHelper openHelper;
+
+    private Bus bus = new Bus();
 
     @Override
     public void onCreate() {
@@ -49,6 +52,17 @@ public class BangApplication extends Application {
 
     }
 
+    public void post(Object event){
+        bus.post(event);
+    }
+
+    public void register(Object object){
+        bus.register(object);
+    }
+
+    public void unregister(Object object) {
+        bus.unregister(object);
+    }
 
 
     public DatabaseOpenHelper getOpenHelper() {
