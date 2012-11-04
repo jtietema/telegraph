@@ -35,7 +35,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		Log.i(TAG, "onCreate");
+        Log.i(TAG, "onCreate");
         setContentView(R.layout.main);
 
         application = (BangApplication) getApplication();

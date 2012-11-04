@@ -29,7 +29,7 @@ public class Message {
     private Date time;
 
     @Column
-    private int status;
+    private int status = STATUS_RECEIVED;
 
     public long getId() {
         return id;
