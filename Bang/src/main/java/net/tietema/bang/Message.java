@@ -70,4 +70,8 @@ public class Message {
     public void setStatus(int status) {
         this.status = status;
     }
+
+    public Boolean isMine() {
+        return this.status == STATUS_PENDING || this.status == STATUS_SENT;
+    }
 }

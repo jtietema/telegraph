@@ -46,6 +46,15 @@ public class BangApplication extends Application {
             nm.setContact(ronald);
             nm.setBody("Test bericht");
             nm.setTime(new Date());
+            nm.setStatus(Message.STATUS_RECEIVED);
+
+            messagesDao.create(nm);
+
+            nm = new Message();
+            nm.setContact(ronald);
+            nm.setBody("Test bericht2");
+            nm.setTime(new Date());
+            nm.setStatus(Message.STATUS_RECEIVED);
 
             messagesDao.create(nm);
 

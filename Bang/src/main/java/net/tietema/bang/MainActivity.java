@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -19,6 +21,8 @@ import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 @ContentView(R.layout.main)
@@ -31,7 +35,6 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
     private DatabaseOpenHelper databaseOpenHelper;
     private BangApplication application;
-    @Inject
     private ConversationListAdapter adapter;
 
     @Override
@@ -40,6 +43,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
         Log.i(TAG, "onCreate");
 
         application = (BangApplication) getApplication();
+        adapter = new ConversationListAdapter();
 
         databaseOpenHelper = OpenHelperManager.getHelper(this, DatabaseOpenHelper.class);
 
@@ -115,6 +119,66 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
         } catch (SQLException e) {
             throw new android.database.SQLException("Error getting conversations", e);
+        }
+    }
+
+    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
+
+    /**
+     * Adapter for displaying a list of conversations. There is one conversation per Contact.
+     * @author  Jeroen Tietema <jeroen@tietema.net>
+     * @author  Mattijs Hoitink <mattijs@monkeyandmachine.com>
+     */
+    private class ConversationListAdapter extends BaseAdapter {
+
+        private List<Contact> contacts = new ArrayList<Contact>();
+
+        public void setContacts(List<Contact> contacts) {
+            this.contacts = contacts;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return contacts.size();
+        }
+
+        @Override
+        public Contact getItem(int position) {
+            return contacts.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_list_item, null);
+            }
+
+            // Get the current contact
+            Contact contact = getItem(position);
+
+            // Contact Name
+            TextView name = (TextView) convertView.findViewById(R.id.contact_name);
+            name.setText(contact.getName());
+
+            // We  assume  all the selected contacts have at least one message
+            Message[] messages = contact.getMessages().toArray(new Message[contact.getMessages().size()]);
+
+            // Date
+            TextView time = (TextView) convertView.findViewById(R.id.time);
+            time.setText(timeFormatter.format(messages[0].getTime()));
+
+            // Message
+            TextView message = (TextView) convertView.findViewById(R.id.message);
+
+            message.setText(messages[0].getBody());
+
+            return convertView;
         }
     }
 
