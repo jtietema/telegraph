@@ -12,11 +12,20 @@
         android:src="@drawable/icon" />
 
     <TextView
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/contact_picture"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp" />
+
+    <TextView
         android:id="@+id/message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/contact_picture"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/time" />
 
 </RelativeLayout>

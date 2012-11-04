@@ -20,13 +20,24 @@
         android:text="Jeroen Tietema" />
 
     <TextView
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:layout_below="@id/contact_name"
+            android:layout_marginTop="5dp"
+            android:layout_alignLeft="@id/contact_name"
+            android:text="10-11-2012 15:14:13"
+            />
+
+    <TextView
         android:id="@+id/message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/contact_picture"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="15dp"
-        android:layout_below="@id/contact_name"
+        android:layout_below="@id/time"
         android:text="Test message all we onto multiple lines of text to make it fit."/>
 
 </RelativeLayout>

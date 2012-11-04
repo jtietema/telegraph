@@ -18,6 +18,7 @@ import com.squareup.otto.Subscribe;
 import roboguice.inject.InjectView;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
     private DatabaseOpenHelper databaseOpenHelper;
     private BangApplication application;
-    private MessageThreadsAdapter adapter;
+    private ConversationListAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
         databaseOpenHelper = OpenHelperManager.getHelper(this, DatabaseOpenHelper.class);
 
-        adapter = new MessageThreadsAdapter();
+        adapter = new ConversationListAdapter();
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
 
@@ -78,7 +79,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent openThread = new Intent(this, ThreadActivity.class);
+        Intent openThread = new Intent(this, ConversationActivity.class);
         openThread.putExtra("contact", ((Contact) parent.getItemAtPosition(position)).getEmail());
         startActivity(openThread);
     }
@@ -102,7 +103,14 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
         }
     }
 
-    private class MessageThreadsAdapter extends BaseAdapter {
+    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
+
+    /**
+     * Adapter for displaying a list of conversations. There is one conversation per Contact.
+     * @author  Jeroen Tietema <jeroen@tietema.net>
+     * @author  Mattijs Hoitink <mattijs@monkeyandmachine.com>
+     */
+    private class ConversationListAdapter extends BaseAdapter {
 
         private List<Contact> contacts = new ArrayList<Contact>();
 
@@ -129,15 +137,27 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.thread_list_item, null);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_list_item, null);
             }
+
+            // Get the current contact
             Contact contact = getItem(position);
+
+            // Contact Name
             TextView name = (TextView) convertView.findViewById(R.id.contact_name);
-            TextView message = (TextView) convertView.findViewById(R.id.message);
             name.setText(contact.getName());
-            // we  assume  all the selected contacts have at least one message
+
+            // We  assume  all the selected contacts have at least one message
             Message[] messages = contact.getMessages().toArray(new Message[contact.getMessages().size()]);
+
+            // Date
+            TextView time = (TextView) convertView.findViewById(R.id.time);
+            time.setText(timeFormatter.format(messages[0].getTime()));
+
+            // Message
+            TextView message = (TextView) convertView.findViewById(R.id.message);
             message.setText(messages[0].getBody());
+
             return convertView;
         }
     }

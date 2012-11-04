@@ -18,17 +18,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import roboguice.inject.InjectView;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * @author jeroen
  */
-public class ThreadActivity extends RoboSherlockActivity implements View.OnClickListener {
+public class ConversationActivity extends RoboSherlockActivity implements View.OnClickListener {
 
     private Contact contact;
     private DatabaseOpenHelper databaseOpenHelper;
     private BangApplication application;
-    private ThreadAdapter adapter;
+    private ConversationAdapter adapter;
 
     @InjectView(R.id.list)      private ListView listView;
     @InjectView(R.id.compose)   private TextView message;
@@ -37,7 +38,7 @@ public class ThreadActivity extends RoboSherlockActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.thread);
+        setContentView(R.layout.conversation);
 
         Intent intent = getIntent();
         String email = intent.getStringExtra("contact");
@@ -49,11 +50,13 @@ public class ThreadActivity extends RoboSherlockActivity implements View.OnClick
             Dao<Contact, String> contactDao = databaseOpenHelper.getDao(Contact.class);
             contact = contactDao.queryForId(email);
 
+            // Set contact name in the main title bar
             ActionBar ab = getSupportActionBar();
             ab.setTitle(contact.getName());
             ab.setDisplayHomeAsUpEnabled(true);
 
-            adapter = new ThreadAdapter(contact);
+            // Set the view Adapter
+            adapter = new ConversationAdapter(contact);
             listView.setAdapter(adapter);
             listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         } catch (SQLException e) {
@@ -137,11 +140,13 @@ public class ThreadActivity extends RoboSherlockActivity implements View.OnClick
 
     }
 
-    private class ThreadAdapter extends BaseAdapter {
+    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
+
+    private class ConversationAdapter extends BaseAdapter {
 
         private Message[] messages;
 
-        public ThreadAdapter(Contact contact) {
+        public ConversationAdapter(Contact contact) {
             setMessages(contact);
         }
 
@@ -169,11 +174,22 @@ public class ThreadActivity extends RoboSherlockActivity implements View.OnClick
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.incoming_message_list_item, null);
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_message_list_item, null);
             }
+
             Message m = getItem(position);
+
+            // Contact picture
+            // @TODO Get picture from contact
+
+            // Time
+            TextView time = (TextView) convertView.findViewById(R.id.time);
+            time.setText(timeFormatter.format(m.getTime()));
+
+            // Message
             TextView message = (TextView) convertView.findViewById(R.id.message);
             message.setText(m.getBody());
+
             return convertView;
         }
     }

@@ -45,7 +45,7 @@ public class BangApplication extends Application {
             Dao<Message, Integer> messagesDao = openHelper.getDao(Message.class);
 
             Message nm = new Message();
-            nm.setContact(nikie);
+            nm.setContact(ronald);
             nm.setBody("Test bericht");
             nm.setTime(new Date());
 
