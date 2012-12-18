@@ -5,14 +5,12 @@ import android.content.Intent;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.squareup.otto.Bus;
-import org.jivesoftware.smack.Connection;
-import org.jivesoftware.smack.XMPPConnection;
 
 import java.sql.SQLException;
 import java.util.Date;
 
 /**
- * @author jeroen
+ * @author Jeroen Tietema <jeroen@tietema.net>
  */
 public class BangApplication extends Application {
 
@@ -52,7 +50,7 @@ public class BangApplication extends Application {
             messagesDao.create(nm);
 
         } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
 
     }

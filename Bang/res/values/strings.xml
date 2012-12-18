@@ -6,4 +6,9 @@
     <string name="input_hint">Type message</string>
     <string name="send">Send</string>
     <string name="empty_message">You can\'t send an empty message</string>
+
+    <!-- Preferences screen -->
+    <string name="menu_preferences">Preferences</string>
+    <string name="preferences_username">Username</string>
+    <string name="preferences_password">Password</string>
 </resources>

@@ -11,10 +11,12 @@ import android.widget.*;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.squareup.otto.Subscribe;
 import org.apache.commons.lang3.ArrayUtils;
+import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
 import java.sql.SQLException;
@@ -24,6 +26,7 @@ import java.util.Date;
 /**
  * @author jeroen
  */
+@ContentView(R.layout.conversation)
 public class ConversationActivity extends RoboSherlockActivity implements View.OnClickListener {
 
     private Contact contact;
@@ -38,7 +41,6 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.conversation);
 
         Intent intent = getIntent();
         String email = intent.getStringExtra("contact");
@@ -140,57 +142,4 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
 
     }
 
-    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
-
-    private class ConversationAdapter extends BaseAdapter {
-
-        private Message[] messages;
-
-        public ConversationAdapter(Contact contact) {
-            setMessages(contact);
-        }
-
-        public void setMessages(Contact contact) {
-            messages = contact.getMessages().toArray(new Message[contact.getMessages().size()]);
-            ArrayUtils.reverse(messages);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public int getCount() {
-            return contact.getMessages().size();
-        }
-
-        @Override
-        public Message getItem(int position) {
-            return messages[position];
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_message_list_item, null);
-            }
-
-            Message m = getItem(position);
-
-            // Contact picture
-            // @TODO Get picture from contact
-
-            // Time
-            TextView time = (TextView) convertView.findViewById(R.id.time);
-            time.setText(timeFormatter.format(m.getTime()));
-
-            // Message
-            TextView message = (TextView) convertView.findViewById(R.id.message);
-            message.setText(m.getBody());
-
-            return convertView;
-        }
-    }
 }

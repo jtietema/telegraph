@@ -49,6 +49,6 @@ public class DatabaseOpenHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource, int i, int i1) {
-        // To change body of implemented methods use File | Settings | File Templates.
+
     }
 }
