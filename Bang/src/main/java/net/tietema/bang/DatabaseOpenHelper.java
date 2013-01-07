@@ -6,6 +6,8 @@ import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import net.tietema.bang.model.Contact;
+import net.tietema.bang.model.LocalMessage;
 
 import java.io.File;
 import java.io.InputStream;
@@ -41,7 +43,7 @@ public class DatabaseOpenHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
             TableUtils.createTable(connectionSource, Contact.class);
-            TableUtils.createTable(connectionSource, Message.class);
+            TableUtils.createTable(connectionSource, LocalMessage.class);
         } catch (SQLException e) {
             Log.e(this.getClass().getName(), e.getMessage(), e);
         }

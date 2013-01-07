@@ -5,6 +5,8 @@ import android.content.Intent;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.squareup.otto.Bus;
+import net.tietema.bang.model.Contact;
+import net.tietema.bang.model.LocalMessage;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -23,45 +25,6 @@ public class BangApplication extends Application {
         super.onCreate();
 
         startService(new Intent(getApplicationContext(), XmppService.class));
-
-        openHelper = OpenHelperManager.getHelper(getApplicationContext(), DatabaseOpenHelper.class);
-
-        // test data
-        try {
-            Dao<Contact, String> contactDao = openHelper.getDao(Contact.class);
-
-            Contact ronald = new Contact();
-            ronald.setEmail("ronald@example.com");
-            ronald.setName("Ronald");
-            contactDao.create(ronald);
-
-            Contact nikie = new Contact();
-            nikie.setEmail("nikie@example.com");
-            nikie.setName("Nikie");
-            contactDao.create(nikie);
-
-            Dao<Message, Integer> messagesDao = openHelper.getDao(Message.class);
-
-            Message nm = new Message();
-            nm.setContact(ronald);
-            nm.setBody("Test bericht");
-            nm.setTime(new Date());
-            nm.setStatus(Message.STATUS_RECEIVED);
-
-            messagesDao.create(nm);
-
-            nm = new Message();
-            nm.setContact(ronald);
-            nm.setBody("Test bericht2");
-            nm.setTime(new Date());
-            nm.setStatus(Message.STATUS_RECEIVED);
-
-            messagesDao.create(nm);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public void post(Object event){
