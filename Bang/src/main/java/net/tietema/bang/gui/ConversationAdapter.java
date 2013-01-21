@@ -67,16 +67,19 @@ public class ConversationAdapter extends BaseAdapter {
         if (messages.length > 0 && position > 0) {
             // Show/Hide the contact picture based on the previous message
             LocalMessage prevMessage = this.messages[position - 1];
-            if (prevMessage.getContact().equals(currentMessage.getContact())) {
+            if (prevMessage.getStatus() == currentMessage.getStatus()) {
                 // Hide icon
                 ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
                 pic.setVisibility(View.INVISIBLE);
-            }
-            else {
+            } else {
                 // Show icon
                 ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
                 pic.setVisibility(View.VISIBLE);
             }
+        } else {
+            // Show icon
+            ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
+            pic.setVisibility(View.VISIBLE);
         }
 
         return convertView;

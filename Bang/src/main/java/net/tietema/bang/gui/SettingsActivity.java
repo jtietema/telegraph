@@ -32,6 +32,9 @@ public class SettingsActivity extends RoboSherlockActivity implements TextWatche
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        username.setText(preferences.getString(Const.EMAIL, ""));
+        password.setText(preferences.getString(Const.PASSWORD, ""));
+
         username.addTextChangedListener(this);
         password.addTextChangedListener(this);
     }

@@ -22,6 +22,7 @@
         </activity>
         <activity android:name=".gui.ConversationActivity" />
         <activity android:name=".gui.SettingsActivity" />
+        <activity android:name=".gui.NewConversationActivity" />
 
         <service android:name=".XmppService" />
   </application>

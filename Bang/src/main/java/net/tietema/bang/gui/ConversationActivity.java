@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.actionbarsherlock.app.ActionBar;
@@ -71,6 +72,9 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
 
         send.setOnClickListener(this);
 
+        // prevent the keyboard from popping up automatically
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
     }
 
     @Override
@@ -88,10 +92,7 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (databaseOpenHelper != null) {
-            OpenHelperManager.releaseHelper();
-            databaseOpenHelper = null;
-        }
+        OpenHelperManager.releaseHelper();
     }
 
     @Override

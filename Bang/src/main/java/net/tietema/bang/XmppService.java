@@ -18,6 +18,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import roboguice.service.RoboService;
+import roboguice.util.Ln;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -86,8 +87,8 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     }
 
     private void startConnection() {
-        final String username = preferences.getString(Const.EMAIL, "");
-        final String password = preferences.getString(Const.PASSWORD, "");
+        final String username = preferences.getString(Const.EMAIL, null);
+        final String password = preferences.getString(Const.PASSWORD, null);
 
         if (username == null || password == null) {
             return;
@@ -95,8 +96,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
         connection = null;
 
-        AndroidConnectionConfiguration connConfig = new AndroidConnectionConfiguration("gabbler.de", 5222, "gabbler.de");
-        connConfig.setSASLAuthenticationEnabled(true);
+        AndroidConnectionConfiguration connConfig = new AndroidConnectionConfiguration("talk.google.com", 5222, "gmail.com");
         connConfig.setDebuggerEnabled(true);
         connection = new XMPPConnection(connConfig);
 
@@ -128,10 +128,9 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
         syncContacts();
 
-        // Create a new presence. Pass in false to indicate we're unavailable.
         Presence presence = new Presence(Presence.Type.available);
         presence.setStatus("Testing BANG!");
-        // Send the packet (assume we have a Connection instance called "con").
+        presence.setPriority(24); // Google uses prio 24 on clients
         connection.sendPacket(presence);
     }
 
@@ -181,10 +180,14 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
         try {
             Dao<Contact, String> contactsDao = databaseOpenHelper.getDao(Contact.class);
 
-            final Contact contact = contactsDao.queryForId(Contact.getEmailFromParticipant(chat.getParticipant()));
+            final String email = Contact.getEmailFromParticipant(chat.getParticipant());
+            Ln.i("Contact email: " + email);
+            final Contact contact = contactsDao.queryForId(email);
 
-            if (contact == null)
+            if (contact == null){
+                Ln.e("Unkown user. How is this possible???");
                 return; // ignore this unkown user
+            }
 
             LocalMessage lm = new LocalMessage();
             lm.setContact(contact);

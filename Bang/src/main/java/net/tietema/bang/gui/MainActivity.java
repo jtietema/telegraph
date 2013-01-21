@@ -100,7 +100,11 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        startActivity(new Intent(this, SettingsActivity.class));
+        if (item.getItemId() == R.id.menu_save){
+            startActivity(new Intent(this, SettingsActivity.class));
+        } else if (item.getItemId() == R.id.menu_new) {
+            startActivity(new Intent(this, NewConversationActivity.class));
+        }
         return true;
     }
 
@@ -119,6 +123,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
             QueryBuilder<LocalMessage, Integer> messagesQb = messagesDao.queryBuilder();
             messagesQb.groupBy("contact_id");
+            messagesQb.orderBy("time", false);
             QueryBuilder<Contact, String> contactQb = contactDao.queryBuilder();
             List<Contact> contacts = contactQb.join(messagesQb).query();
 
