@@ -8,9 +8,20 @@
     <packaging>apk</packaging>
     <name>Bang</name>
 
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>http://repo.maven.apache.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>jtietema-snapshots</id>
+            <url>https://github.com/jtietema/mvn-repo/raw/master/snapshots</url>
+        </repository>
+    </repositories>
+
+
     <properties>
-        <platform.version> 4.1.1.4
-            </platform.version>
+        <platform.version>4.1.1.4</platform.version>
     </properties>
 
     <dependencies>
