@@ -1,4 +1,4 @@
-package net.tietema.bang.gui;
+package net.tietema.telegraph.gui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,11 +15,13 @@ import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivit
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.squareup.otto.Subscribe;
-import net.tietema.bang.*;
-import net.tietema.bang.event.NewIncomingMessageEvent;
-import net.tietema.bang.event.NewOutgoingMessageEvent;
-import net.tietema.bang.model.Contact;
-import net.tietema.bang.model.LocalMessage;
+import net.tietema.telegraph.BangApplication;
+import net.tietema.telegraph.DatabaseOpenHelper;
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.event.NewIncomingMessageEvent;
+import net.tietema.telegraph.event.NewOutgoingMessageEvent;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
 import org.apache.commons.lang3.ArrayUtils;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
@@ -149,7 +151,7 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
             messageDao.create(newMessage);
             application.post(new NewOutgoingMessageEvent(contact.getEmail()));
             message.setText("");
-            InputMethodManager imm = (InputMethodManager)getSystemService(
+            InputMethodManager imm = (InputMethodManager) getSystemService(
                     Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(message.getWindowToken(), 0);
         } catch (SQLException e) {
@@ -193,7 +195,8 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_message_list_item, null);
+                LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+                convertView = inflater.inflate(R.layout.conversation_message_list_item, null);
             }
 
             // The current message we are displaying
@@ -218,8 +221,7 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
                     // Hide icon
                     ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
                     pic.setVisibility(View.INVISIBLE);
-                }
-                else {
+                } else {
                     // Show icon
                     ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
                     pic.setVisibility(View.VISIBLE);

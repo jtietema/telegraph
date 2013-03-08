@@ -1,4 +1,4 @@
-package net.tietema.bang.model;
+package net.tietema.telegraph.model;
 
 /**
  * @author jeroen

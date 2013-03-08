@@ -1,4 +1,4 @@
-package net.tietema.bang.model;
+package net.tietema.telegraph.model;
 
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.ForeignCollectionField;

@@ -1,4 +1,4 @@
-package net.tietema.bang.gui;
+package net.tietema.telegraph.gui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +9,9 @@ import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivit
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
-import net.tietema.bang.DatabaseOpenHelper;
-import net.tietema.bang.R;
-import net.tietema.bang.model.Contact;
+import net.tietema.telegraph.DatabaseOpenHelper;
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.model.Contact;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 

@@ -1,4 +1,4 @@
-package net.tietema.bang;
+package net.tietema.telegraph;
 
 import android.app.Application;
 import com.google.inject.AbstractModule;

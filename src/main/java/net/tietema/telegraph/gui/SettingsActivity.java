@@ -1,4 +1,4 @@
-package net.tietema.bang.gui;
+package net.tietema.telegraph.gui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,10 +7,10 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
-import net.tietema.bang.BangApplication;
-import net.tietema.bang.Const;
-import net.tietema.bang.R;
-import net.tietema.bang.event.SettingsChangedEvent;
+import net.tietema.telegraph.BangApplication;
+import net.tietema.telegraph.Const;
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.event.SettingsChangedEvent;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 

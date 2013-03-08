@@ -1,4 +1,4 @@
-package net.tietema.bang.event;
+package net.tietema.telegraph.event;
 
 /**
  * @author jeroen

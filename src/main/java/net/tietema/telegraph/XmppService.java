@@ -1,4 +1,4 @@
-package net.tietema.bang;
+package net.tietema.telegraph;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,11 +9,11 @@ import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.squareup.otto.Subscribe;
-import net.tietema.bang.event.NewIncomingMessageEvent;
-import net.tietema.bang.event.NewOutgoingMessageEvent;
-import net.tietema.bang.event.SettingsChangedEvent;
-import net.tietema.bang.model.Contact;
-import net.tietema.bang.model.LocalMessage;
+import net.tietema.telegraph.event.NewIncomingMessageEvent;
+import net.tietema.telegraph.event.NewOutgoingMessageEvent;
+import net.tietema.telegraph.event.SettingsChangedEvent;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;

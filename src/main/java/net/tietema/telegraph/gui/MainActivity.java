@@ -1,4 +1,4 @@
-package net.tietema.bang.gui;
+package net.tietema.telegraph.gui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,16 +12,17 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
-import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.squareup.otto.Subscribe;
-import net.tietema.bang.*;
-import net.tietema.bang.event.NewIncomingMessageEvent;
-import net.tietema.bang.event.NewOutgoingMessageEvent;
-import net.tietema.bang.model.Contact;
-import net.tietema.bang.model.LocalMessage;
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.event.NewIncomingMessageEvent;
+import net.tietema.telegraph.event.NewOutgoingMessageEvent;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
+import net.tietema.telegraph.BangApplication;
+import net.tietema.telegraph.DatabaseOpenHelper;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 

@@ -1,4 +1,4 @@
-package net.tietema.bang.gui;
+package net.tietema.telegraph.gui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,9 +6,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import net.tietema.bang.model.Contact;
-import net.tietema.bang.R;
-import net.tietema.bang.model.LocalMessage;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.model.LocalMessage;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.text.SimpleDateFormat;

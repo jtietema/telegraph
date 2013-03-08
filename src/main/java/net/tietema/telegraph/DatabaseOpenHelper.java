@@ -1,4 +1,4 @@
-package net.tietema.bang;
+package net.tietema.telegraph;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -6,8 +6,8 @@ import android.util.Log;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
-import net.tietema.bang.model.Contact;
-import net.tietema.bang.model.LocalMessage;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
 
 import java.io.File;
 import java.io.InputStream;

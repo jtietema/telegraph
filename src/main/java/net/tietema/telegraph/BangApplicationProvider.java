@@ -1,4 +1,4 @@
-package net.tietema.bang;
+package net.tietema.telegraph;
 
 import com.google.inject.Provider;
 
