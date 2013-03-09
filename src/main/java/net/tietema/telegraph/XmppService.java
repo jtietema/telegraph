@@ -1,13 +1,18 @@
 package net.tietema.telegraph;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import net.tietema.telegraph.event.NewIncomingMessageEvent;
 import net.tietema.telegraph.event.NewOutgoingMessageEvent;
@@ -30,11 +35,16 @@ import java.util.concurrent.Callable;
 public class XmppService extends RoboService implements ConnectionListener, ChatManagerListener, MessageListener, RosterListener {
 
     private static final String TAG = "XmppService";
+    private static final int STATUS_NOTIFICATION = 1337;
+    private static final long CONNECTION_CHECK_INTERVAL = 20 * 1000L;
 
     @Inject
     private SharedPreferences preferences;
+    @Inject
+    private NotificationManager notificationManager;
 
-    private BangApplication application;
+    @Inject
+    private Bus eventBus;
     private DatabaseOpenHelper databaseOpenHelper;
 
     private Connection connection;
@@ -46,8 +56,8 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
         Log.i(TAG, "onCreate");
         super.onCreate();
 
-        application = (BangApplication) getApplication();
-        application.register(this);
+        eventBus.register(this);
+        updateNotification(false);
 
         databaseOpenHelper = OpenHelperManager.getHelper(this, DatabaseOpenHelper.class);
 
@@ -78,12 +88,14 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
         Log.i(TAG, "onDestroy");
         super.onDestroy();
 
-        application.unregister(this);
+        eventBus.unregister(this);
 
         OpenHelperManager.releaseHelper();
 
         if (connection != null && connection.isConnected())
             connection.disconnect();
+
+        notificationManager.cancel(STATUS_NOTIFICATION);
     }
 
     private void startConnection() {
@@ -98,6 +110,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
         AndroidConnectionConfiguration connConfig = new AndroidConnectionConfiguration("talk.google.com", 5222, "gmail.com");
         connConfig.setDebuggerEnabled(true);
+        connConfig.setReconnectionAllowed(true);
         connection = new XMPPConnection(connConfig);
 
         connectionThread = new Thread(){
@@ -129,9 +142,17 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
         syncContacts();
 
         Presence presence = new Presence(Presence.Type.available);
-        presence.setStatus("Testing BANG!");
+        presence.setStatus("Testing Telegraph!");
         presence.setPriority(24); // Google uses prio 24 on clients
         connection.sendPacket(presence);
+
+        mainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                updateNotification(true);
+            }
+        });
+        mainThreadHandler.postDelayed(new ConnectionChecker(), CONNECTION_CHECK_INTERVAL);
     }
 
     private void reStartConnection() {
@@ -144,11 +165,13 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     @Override
     public void connectionClosed() {
         Log.i(TAG, "connectionClosed");
+        updateNotification(false);
     }
 
     @Override
     public void connectionClosedOnError(Exception e) {
         Log.i(TAG, "connectionClosedOnError: " + e.getMessage());
+        updateNotification(false);
     }
 
     @Override
@@ -159,6 +182,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     @Override
     public void reconnectionSuccessful() {
         Log.i(TAG, "reconnectionSuccessful");
+        updateNotification(true);
     }
 
     @Override
@@ -176,6 +200,8 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     @Override
     public void processMessage(Chat chat, Message message) {
         Log.i(TAG, "processMessage");
+        if (TextUtils.isEmpty(message.getBody()))
+            return; // ignore empty messages
 
         try {
             Dao<Contact, String> contactsDao = databaseOpenHelper.getDao(Contact.class);
@@ -202,7 +228,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
             mainThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    application.post(new NewIncomingMessageEvent(contact.getEmail()));
+                    eventBus.post(new NewIncomingMessageEvent(contact.getEmail()));
                 }
             });
 
@@ -289,13 +315,13 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
             Dao<LocalMessage, Integer> messageDao = databaseOpenHelper.getDao(LocalMessage.class);
             List<LocalMessage> messages = messageDao.queryForEq("status", LocalMessage.STATUS_PENDING);
             for (LocalMessage message : messages) {
-                // TODO: this generates a new threadID everytime. This may anoy other clients
+                // FIXME: this generates a new threadID everytime. This may anoy other clients
                 Chat chat = connection.getChatManager().createChat(message.getContact().getEmail(), this);
                 chat.sendMessage(message.getBody());
                 message.setStatus(LocalMessage.STATUS_SENT);
                 messageDao.update(message);
             }
-            // We should signal an event that the messages are succesfully sent
+            // TODO: We should signal an event that the messages are succesfully sent
 
         } catch (SQLException e) {
             throw new android.database.SQLException("SQL error", e);
@@ -323,5 +349,34 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     public void presenceChanged(Presence presence) {
         Log.i(TAG, "presenceChanged");
 
+    }
+
+    private void updateNotification(boolean connected) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setOngoing(true);
+        builder.setContentTitle("Telegraph");
+        if (connected) {
+            builder.setSmallIcon(R.drawable.rating_good);
+            builder.setTicker("Connected");
+            builder.setContentText("Connected");
+        } else {
+            builder.setSmallIcon(R.drawable.rating_bad);
+            builder.setTicker("Disconnected");
+            builder.setContentText("Disconnected");
+        }
+        Notification notification = builder.getNotification();
+        notificationManager.notify(STATUS_NOTIFICATION, notification);
+    }
+
+    class ConnectionChecker implements Runnable {
+
+        @Override
+        public void run() {
+            if (connection == null || !connection.isConnected()) {
+                Ln.i("Connection is dead, trying to reconnect...");
+                reStartConnection();
+                mainThreadHandler.postDelayed(this, CONNECTION_CHECK_INTERVAL);
+            }
+        }
     }
 }

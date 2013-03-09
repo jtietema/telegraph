@@ -8,35 +8,38 @@
         android:id="@+id/contact_picture"
         android:layout_height="64dp"
         android:layout_width="64dp"
+        android:background="@drawable/box"
         android:contentDescription="@string/contact_picture"
-        android:src="@drawable/icon" />
+        android:src="@drawable/social_person" />
 
-    <TextView
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minHeight="64dp"
+        android:background="@android:color/white"
+        android:layout_toRightOf="@id/contact_picture"
+        android:paddingLeft="15dp">
+
+        <TextView
             android:id="@+id/time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/contact_picture"
-            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp" />
 
-    <TextView
-        android:id="@+id/message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/contact_picture"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="5dp"
-        android:layout_below="@id/time" />
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/time" />
+
+    </RelativeLayout>
 
     <View
         android:id="@+id/separator"
         android:layout_height="1px"
         android:layout_width="match_parent"
         android:layout_toRightOf="@id/contact_picture"
-        android:layout_below="@id/message"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
         android:background="#CCCCCC"
         android:visibility="visible"
         />

@@ -13,7 +13,7 @@ or messaging very well. For instance in most XMPP apps you can't easily chat wit
 For trivial bugfixes you can just submit a pull request. For developing new features it's better to contact me first
 before starting with development.
 
-This currently on the TODO are:
+Things currently on the TODO are:
 
   * Notifications when receiving new messages
   * Downloading user avatars

@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
+import com.squareup.otto.Bus;
 import net.tietema.telegraph.BangApplication;
 import net.tietema.telegraph.Const;
 import net.tietema.telegraph.R;
@@ -20,10 +21,13 @@ import roboguice.inject.InjectView;
  */
 @ContentView(R.layout.settings)
 public class SettingsActivity extends RoboSherlockActivity implements TextWatcher {
-    @Inject                     private SharedPreferences   preferences;
-    @InjectView(R.id.username)  private EditText            username;
-    @InjectView(R.id.password)  private EditText            password;
-                                private boolean             dirty = false;
+    @Inject private SharedPreferences preferences;
+    @Inject private Bus               eventBus;
+
+    @InjectView(R.id.username)  private EditText username;
+    @InjectView(R.id.password)  private EditText password;
+
+    private boolean dirty = false;
 
 
     @Override
@@ -43,7 +47,7 @@ public class SettingsActivity extends RoboSherlockActivity implements TextWatche
     protected void onStop() {
         super.onStop();
         if (dirty) {
-            ((BangApplication) getApplication()).post(new SettingsChangedEvent());
+            eventBus.post(new SettingsChangedEvent());
         }
     }
 

@@ -12,10 +12,11 @@ import android.widget.*;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import net.tietema.telegraph.BangApplication;
 import net.tietema.telegraph.DatabaseOpenHelper;
 import net.tietema.telegraph.R;
 import net.tietema.telegraph.event.NewIncomingMessageEvent;
@@ -38,12 +39,13 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
 
     private Contact contact;
     private DatabaseOpenHelper databaseOpenHelper;
-    private BangApplication application;
+    @Inject
+    private Bus eventBus;
     private ConversationAdapter adapter;
 
-    @InjectView(R.id.list)      private ListView listView;
-    @InjectView(R.id.compose)   private TextView message;
-    @InjectView(R.id.send)      private Button send;
+    @InjectView(R.id.list)      private ListView    listView;
+    @InjectView(R.id.compose)   private TextView    message;
+    @InjectView(R.id.send)      private ImageButton send;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +53,6 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
 
         Intent intent = getIntent();
         String email = intent.getStringExtra("contact");
-
-        application = (BangApplication) getApplication();
 
         databaseOpenHelper = OpenHelperManager.getHelper(this, DatabaseOpenHelper.class);
         try {
@@ -67,6 +67,7 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
             // Set the view Adapter
             adapter = new ConversationAdapter(contact);
             listView.setAdapter(adapter);
+            listView.setSelection(adapter.getCount() - 1);
             listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         } catch (SQLException e) {
             throw new android.database.SQLException("Error retrieving contact", e);
@@ -82,13 +83,13 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
     @Override
     protected void onResume() {
         super.onResume();
-        application.register(this);
+        eventBus.register(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        application.unregister(this);
+        eventBus.unregister(this);
     }
 
     @Override
@@ -129,6 +130,7 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
             Dao<Contact, String> contactDao = databaseOpenHelper.getDao(Contact.class);
             contactDao.refresh(contact);
             adapter.setMessages(contact);
+            //listView.setSelection(adapter.getCount() - 1);
         } catch (SQLException e) {
             throw new android.database.SQLException("Error refreshing contact", e);
         }
@@ -149,7 +151,7 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
         try {
             Dao<LocalMessage, Integer> messageDao = databaseOpenHelper.getDao(LocalMessage.class);
             messageDao.create(newMessage);
-            application.post(new NewOutgoingMessageEvent(contact.getEmail()));
+            eventBus.post(new NewOutgoingMessageEvent(contact.getEmail()));
             message.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(
                     Context.INPUT_METHOD_SERVICE);
@@ -214,18 +216,21 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
             message.setText(currentMessage.getBody());
 
             // Contact picture
+            ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
             if (messages.length > 0 && position > 0) {
                 // Show/Hide the contact picture based on the previous message
                 LocalMessage prevMessage = this.messages[position - 1];
-                if (prevMessage.getContact().equals(currentMessage.getContact())) {
+                if ((prevMessage.isMine() && currentMessage.isMine())
+                        || (!prevMessage.isMine() && !currentMessage.isMine())) {
                     // Hide icon
-                    ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
+
                     pic.setVisibility(View.INVISIBLE);
                 } else {
                     // Show icon
-                    ImageView pic = (ImageView) convertView.findViewById(R.id.contact_picture);
                     pic.setVisibility(View.VISIBLE);
                 }
+            } else {
+                pic.setVisibility(View.VISIBLE);
             }
 
             return convertView;

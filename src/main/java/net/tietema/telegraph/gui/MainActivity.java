@@ -2,8 +2,11 @@ package net.tietema.telegraph.gui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -12,17 +15,19 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import net.tietema.telegraph.DatabaseOpenHelper;
 import net.tietema.telegraph.R;
+import net.tietema.telegraph.XmppService;
 import net.tietema.telegraph.event.NewIncomingMessageEvent;
 import net.tietema.telegraph.event.NewOutgoingMessageEvent;
 import net.tietema.telegraph.model.Contact;
 import net.tietema.telegraph.model.LocalMessage;
-import net.tietema.telegraph.BangApplication;
-import net.tietema.telegraph.DatabaseOpenHelper;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
@@ -40,7 +45,8 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
     private ListView listView;
 
     private DatabaseOpenHelper databaseOpenHelper;
-    private BangApplication application;
+    @Inject
+    private Bus eventBus;
     private ConversationListAdapter adapter;
 
     @Override
@@ -48,7 +54,6 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
 
-        application = (BangApplication) getApplication();
         adapter = new ConversationListAdapter();
 
         databaseOpenHelper = OpenHelperManager.getHelper(this, DatabaseOpenHelper.class);
@@ -61,7 +66,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
-        application.register(this);
+        eventBus.register(this);
         refreshAdapter();
     }
 
@@ -69,7 +74,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause");
-        application.unregister(this);
+        eventBus.unregister(this);
     }
 
     @Override
@@ -105,6 +110,8 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (item.getItemId() == R.id.menu_new) {
             startActivity(new Intent(this, NewConversationActivity.class));
+        } else if (item.getItemId() == R.id.menu_toggle_connection) {
+            stopService(new Intent(this, XmppService.class));
         }
         return true;
     }
@@ -185,7 +192,8 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
             // Date
             TextView time = (TextView) convertView.findViewById(R.id.time);
-            time.setText(timeFormatter.format(messages[0].getTime()));
+            time.setText(DateUtils.getRelativeDateTimeString(MainActivity.this, messages[0].getTime().getTime(),
+                    DateUtils.SECOND_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE));
 
             // Message
             TextView message = (TextView) convertView.findViewById(R.id.message);

@@ -11,9 +11,9 @@ import java.util.Date;
 @Entity
 public class LocalMessage {
     // message status codes
-    public static int STATUS_PENDING    = 0;
-    public static int STATUS_SENT       = 1;
-    public static int STATUS_RECEIVED   = 2;
+    public static final int STATUS_PENDING    = 0;
+    public static final int STATUS_SENT       = 1;
+    public static final int STATUS_RECEIVED   = 2;
 
     @Id
     @GeneratedValue
@@ -56,11 +56,11 @@ public class LocalMessage {
     }
 
     public Date getTime() {
-        return time;
+        return (Date) time.clone();
     }
 
     public void setTime(Date time) {
-        this.time = time;
+        this.time = (Date) time.clone();
     }
 
     public int getStatus() {

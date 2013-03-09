@@ -8,6 +8,8 @@
     <string name="empty_message">You can\'t send an empty message</string>
 
     <string name="menu_new_conversation">New conversation</string>
+    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_connect">Connect</string>
 
     <!-- Preferences screen -->
     <string name="menu_preferences">Preferences</string>

@@ -3,7 +3,8 @@ package net.tietema.telegraph;
 /**
  * @author jeroen
  */
-public class Const {
-    public static String EMAIL      = "email";
-    public static String PASSWORD   = "password";
+public final class Const {
+    private Const() {}
+    public static final String EMAIL      = "email";
+    public static final String PASSWORD   = "password";
 }

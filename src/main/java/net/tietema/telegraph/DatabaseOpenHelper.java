@@ -18,7 +18,7 @@ import java.sql.SQLException;
  */
 public class DatabaseOpenHelper extends OrmLiteSqliteOpenHelper {
 
-    public static int VERSION = 1;
+    public static final int VERSION = 1;
 
     public DatabaseOpenHelper(Context context) {
         this(context, "bangdb", null, VERSION);
