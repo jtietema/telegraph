@@ -1,4 +1,49 @@
+/*
+ * Telegraph is an online messaging app with strong focus on privacy
+ * Copyright (C) 2013 Jeroen Tietema <jeroen@tietema.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tietema.telegraph;
+
+import com.google.inject.Inject;
+
+import com.crittercism.app.Crittercism;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+
+import net.tietema.telegraph.event.NewIncomingMessageEvent;
+import net.tietema.telegraph.event.NewOutgoingMessageEvent;
+import net.tietema.telegraph.event.SettingsChangedEvent;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
+
+import org.jivesoftware.smack.AndroidConnectionConfiguration;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManagerListener;
+import org.jivesoftware.smack.Connection;
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -9,25 +54,18 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import com.google.inject.Inject;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
-import net.tietema.telegraph.event.NewIncomingMessageEvent;
-import net.tietema.telegraph.event.NewOutgoingMessageEvent;
-import net.tietema.telegraph.event.SettingsChangedEvent;
-import net.tietema.telegraph.model.Contact;
-import net.tietema.telegraph.model.LocalMessage;
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Presence;
-import roboguice.service.RoboService;
-import roboguice.util.Ln;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
+
+import roboguice.service.RoboService;
+import roboguice.util.Ln;
 
 /**
  * @author jeroen
@@ -55,6 +93,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     public void onCreate() {
         Log.i(TAG, "onCreate");
         super.onCreate();
+        Crittercism.init(getApplicationContext(), Const.CRITTERCISM);
 
         eventBus.register(this);
         updateNotification(false);
@@ -65,6 +104,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
         startConnection();
     }
+
     @Subscribe
     public void onSettingsChanged(SettingsChangedEvent event) {
         Log.i(TAG, "SettingsChanged");
@@ -108,7 +148,8 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
         connection = null;
 
-        AndroidConnectionConfiguration connConfig = new AndroidConnectionConfiguration("talk.google.com", 5222, "gmail.com");
+        AndroidConnectionConfiguration connConfig =
+            new AndroidConnectionConfiguration("talk.google.com", 5222, "gmail.com");
         connConfig.setDebuggerEnabled(true);
         connConfig.setReconnectionAllowed(true);
         connection = new XMPPConnection(connConfig);
@@ -212,10 +253,10 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
             if (contact == null){
                 Ln.e("Unkown user. How is this possible???");
-                return; // ignore this unkown user
+                return; // ignore this unknown user
             }
 
-            LocalMessage lm = new LocalMessage();
+            final LocalMessage lm = new LocalMessage();
             lm.setContact(contact);
             lm.setBody(message.getBody());
             lm.setStatus(LocalMessage.STATUS_RECEIVED);
@@ -228,12 +269,14 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
             mainThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    eventBus.post(new NewIncomingMessageEvent(contact.getEmail()));
+                    eventBus.post(new NewIncomingMessageEvent(contact.getEmail(), lm));
                 }
             });
 
         } catch (SQLException e) {
-            throw new android.database.SQLException(e.getMessage(), e);
+            android.database.SQLException ex = new android.database.SQLException(e.getMessage());
+            ex.initCause(e);
+            throw ex;
         }
     }
 
@@ -292,7 +335,9 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
             });
 
         } catch (SQLException e) {
-            throw new android.database.SQLException(e.getMessage(), e);
+          RuntimeException ex = new android.database.SQLException(e.getMessage());
+          ex.initCause(e);
+          throw ex;
         } catch (Exception e) {
             Log.e(TAG, "Exception caught. (Error in batch task?)");
             throw new RuntimeException(e);
@@ -301,7 +346,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     }
 
     /**
-     * This tries to send out all pending messages
+     * Tries to send out all pending messages
      * @param event
      */
     @Subscribe
@@ -324,7 +369,9 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
             // TODO: We should signal an event that the messages are succesfully sent
 
         } catch (SQLException e) {
-            throw new android.database.SQLException("SQL error", e);
+            android.database.SQLException ex = new android.database.SQLException("SQL error");
+            ex.initCause(e);
+            throw ex;
         } catch (XMPPException e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -351,6 +398,10 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
     }
 
+  /**
+   * Update the connection status notification with the current status
+   * @param connected
+   */
     private void updateNotification(boolean connected) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setOngoing(true);
@@ -367,6 +418,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
         Notification notification = builder.getNotification();
         notificationManager.notify(STATUS_NOTIFICATION, notification);
     }
+
 
     class ConnectionChecker implements Runnable {
 

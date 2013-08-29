@@ -1,4 +1,43 @@
+/*
+ * Telegraph is an online messaging app with strong focus on privacy
+ * Copyright (C) 2013 Jeroen Tietema <jeroen@tietema.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tietema.telegraph.gui;
+
+import com.google.inject.Inject;
+
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.crittercism.app.Crittercism;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+
+import net.tietema.telegraph.Const;
+import net.tietema.telegraph.DatabaseOpenHelper;
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.XmppService;
+import net.tietema.telegraph.event.NewIncomingMessageEvent;
+import net.tietema.telegraph.event.NewOutgoingMessageEvent;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,30 +50,14 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
-import com.google.inject.Inject;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
-import net.tietema.telegraph.DatabaseOpenHelper;
-import net.tietema.telegraph.R;
-import net.tietema.telegraph.XmppService;
-import net.tietema.telegraph.event.NewIncomingMessageEvent;
-import net.tietema.telegraph.event.NewOutgoingMessageEvent;
-import net.tietema.telegraph.model.Contact;
-import net.tietema.telegraph.model.LocalMessage;
-import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
 @ContentView(R.layout.main)
 public class MainActivity extends RoboSherlockActivity implements AdapterView.OnItemClickListener {
@@ -52,6 +75,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crittercism.init(getApplicationContext(), Const.CRITTERCISM);
         Log.i(TAG, "onCreate");
 
         adapter = new ConversationListAdapter();
@@ -119,7 +143,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent openThread = new Intent(this, ConversationActivity.class);
-        openThread.putExtra("contact", ((Contact) parent.getItemAtPosition(position)).getEmail());
+        openThread.putExtra(Const.EMAIL, ((Contact) parent.getItemAtPosition(position)).getEmail());
         startActivity(openThread);
     }
 
@@ -139,7 +163,9 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
             adapter.setContacts(contacts);
 
         } catch (SQLException e) {
-            throw new android.database.SQLException("Error getting conversations", e);
+            android.database.SQLException ex = new android.database.SQLException("Error getting conversations");
+            ex.initCause(e);
+            throw ex;
         }
     }
 

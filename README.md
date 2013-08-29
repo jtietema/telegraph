@@ -1,10 +1,13 @@
 # Telegraph - An messaging app for the open minded
 
-Telegraph aims to replace messaging apps like SMS, MMS, WhatsApp and Viber by building a quality messaging app on
-XMPP. So you can use your existing accounts (GTalk, Facebook Chat, etc.) for messaging.
+Telegraph aims to replace messaging apps like SMS, MMS, WhatsApp and Viber by building a quality
+messaging app on XMPP. So you can use your existing accounts (GTalk, Facebook Chat, etc.) for
+messaging.
 
-*Why another XMPP app?* Most XMPP apps are built as instant messaging apps or chat apps. They don't accomodate slow chat
-or messaging very well. For instance in most XMPP apps you can't easily chat with offline people.
+*Why another XMPP app?* Most XMPP apps are built as instant messaging apps or chat apps. They don't
+accomodate slow chat or messaging very well. For instance in most XMPP apps you can't easily chat
+with offline people. In addition to that Telegraph aims to make it easy for everybody to use strong
+encryption (through OpenPGP) to secure their messages.
 
 ## Contributing
 
@@ -19,6 +22,10 @@ Things currently on the TODO are:
   * Downloading user avatars
   * Feedback when sending messages to an offline recipient
   * Polish in the UI
+  * Setup wizard
+  * Migrate to content provider?
+  * OpenPGP encryption
+
 
 ## License
 

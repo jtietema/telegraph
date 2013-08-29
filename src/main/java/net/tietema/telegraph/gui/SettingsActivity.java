@@ -5,10 +5,10 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
+import com.crittercism.app.Crittercism;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
-import net.tietema.telegraph.BangApplication;
 import net.tietema.telegraph.Const;
 import net.tietema.telegraph.R;
 import net.tietema.telegraph.event.SettingsChangedEvent;
@@ -33,6 +33,7 @@ public class SettingsActivity extends RoboSherlockActivity implements TextWatche
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crittercism.init(getApplicationContext(), Const.CRITTERCISM);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

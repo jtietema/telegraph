@@ -1,4 +1,42 @@
+/*
+ * Telegraph is an online messaging app with strong focus on privacy
+ * Copyright (C) 2013 Jeroen Tietema <jeroen@tietema.net>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package net.tietema.telegraph.gui;
+
+import com.google.inject.Inject;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
+import com.crittercism.app.Crittercism;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+
+import net.tietema.telegraph.Const;
+import net.tietema.telegraph.DatabaseOpenHelper;
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.event.NewIncomingMessageEvent;
+import net.tietema.telegraph.event.NewOutgoingMessageEvent;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,28 +46,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.MenuItem;
-import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
-import com.google.inject.Inject;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.Dao;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
-import net.tietema.telegraph.DatabaseOpenHelper;
-import net.tietema.telegraph.R;
-import net.tietema.telegraph.event.NewIncomingMessageEvent;
-import net.tietema.telegraph.event.NewOutgoingMessageEvent;
-import net.tietema.telegraph.model.Contact;
-import net.tietema.telegraph.model.LocalMessage;
-import org.apache.commons.lang3.ArrayUtils;
-import roboguice.inject.ContentView;
-import roboguice.inject.InjectView;
+import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
 /**
  * @author jeroen
@@ -50,9 +79,10 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crittercism.init(getApplicationContext(), Const.CRITTERCISM);
 
         Intent intent = getIntent();
-        String email = intent.getStringExtra("contact");
+        String email = intent.getStringExtra(Const.EMAIL);
 
         databaseOpenHelper = OpenHelperManager.getHelper(this, DatabaseOpenHelper.class);
         try {
@@ -70,7 +100,9 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
             listView.setSelection(adapter.getCount() - 1);
             listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         } catch (SQLException e) {
-            throw new android.database.SQLException("Error retrieving contact", e);
+            android.database.SQLException ex = new android.database.SQLException("Error retrieving contact");
+            ex.initCause(e);
+            throw ex;
         }
 
         send.setOnClickListener(this);
@@ -132,7 +164,9 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
             adapter.setMessages(contact);
             //listView.setSelection(adapter.getCount() - 1);
         } catch (SQLException e) {
-            throw new android.database.SQLException("Error refreshing contact", e);
+            android.database.SQLException ex = new android.database.SQLException("Error refreshing contact");
+            ex.initCause(e);
+            throw ex;
         }
     }
 
@@ -157,7 +191,9 @@ public class ConversationActivity extends RoboSherlockActivity implements View.O
                     Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(message.getWindowToken(), 0);
         } catch (SQLException e) {
-            throw new android.database.SQLException("Exception saving message", e);
+            android.database.SQLException ex = new android.database.SQLException("Exception saving message");
+            ex.initCause(e);
+            throw ex;
         }
 
 
