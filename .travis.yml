@@ -1,24 +1,21 @@
-language: java
-jdk: oraclejdk7
-before_install:
-  #- sudo apt-get update -qq
-  #- if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
-  - sudo apt-get install libc6-dev-i386
-  - sudo apt-get install lib32ncurses5-dev
-  - sudo apt-get install libx11-dev
-  - sudo apt-get install g++-multilib
-  - sudo apt-get install lib32z1-dev
-  # download the latest android sdk and unzip
-  - wget http://dl.google.com/android/android-sdk_r21.1-linux.tgz
-  - tar -zxf android-sdk_r21.1-linux.tgz
-  - export ANDROID_HOME=`pwd`/android-sdk-linux
-  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-  # only update the sdk for the tools and platform-tools (1,2) and whatever api level
-  # you are building for android (run "android list sdk" to get the full list.  9 = 2.3.3 or API level 10
-  # - android update sdk --filter platform-tools,android-19 --no-ui --force
-  - TOOLS=$(android list sdk --no-ui | grep "Android SDK Platform-tools" | cut -d"-" -f1)
-  - android update sdk --filter "$TOOLS" --no-ui --force
-  - SDK=$(android list sdk --no-ui | grep ", API 19," | cut -d"-" -f1| tr -d ' ' | paste -sd ",")
-  - android update sdk --filter "$SDK" --no-ui --force
-script:
-  - ./gradlew clean assembleDebug
+language: android
+android:
+  components:
+    # Uncomment the lines below if you want to
+    # use the latest revision of Android SDK Tools
+    # - platform-tools
+    # - tools
+
+    # The BuildTools version used by your project
+    - build-tools-21.1.2
+
+    # The SDK version used to compile your project
+    - android-19
+
+    # Additional components
+    - extra-android-m2repository
+
+    # Specify at least one system image,
+    # if you need to run emulator(s) during your tests
+    # - sys-img-armeabi-v7a-android-19
+    # - sys-img-x86-android-17
