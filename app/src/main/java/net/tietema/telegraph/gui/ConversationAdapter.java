@@ -17,12 +17,6 @@
 
 package net.tietema.telegraph.gui;
 
-import net.tietema.telegraph.R;
-import net.tietema.telegraph.model.Contact;
-import net.tietema.telegraph.model.LocalMessage;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +24,17 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
+
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.text.SimpleDateFormat;
 
 public class ConversationAdapter extends BaseAdapter {
 
-    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
+    private SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
     private LocalMessage[] messages;
 
     public ConversationAdapter(Contact contact) {

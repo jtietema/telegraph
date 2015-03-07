@@ -17,15 +17,15 @@
 
 package net.tietema.telegraph.gui;
 
-import net.tietema.telegraph.R;
-import net.tietema.telegraph.model.Contact;
-import net.tietema.telegraph.model.LocalMessage;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.model.Contact;
+import net.tietema.telegraph.model.LocalMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import java.util.List;
 public class ConversationListAdapter extends BaseAdapter {
 
     private List<Contact> contacts = new ArrayList<Contact>();
-    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
+    private SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yy HH:mm");
 
     public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
