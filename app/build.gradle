@@ -4,6 +4,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.1.2'
+        classpath 'org.ysb33r.gradle:doxygen:0.2'
     }
 }
 
@@ -23,7 +24,7 @@ android {
     }
 }
 
-dependencies{
+dependencies {
     compile 'org.roboguice:roboguice:2.0'
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.github.rtyley:roboguice-sherlock:1.4'
@@ -34,4 +35,94 @@ dependencies{
     compile 'com.crittercism:crittercism-android-agent:4.5.1'
     compile 'com.android.support:support-v4:20.0.0'
     compile fileTree(dir: 'libs', include: '*.jar')
+
+    testCompile 'junit:junit:4.12'
 }
+
+/*
+ * Documentation
+ * note: You need to have doxygen installed and on your PATH
+ */
+apply plugin : 'org.ysb33r.doxygen'
+doxygen {
+    generate_html true
+
+    source new File(projectDir,'src/main/java')
+}
+
+/*
+ * Reporting section
+ */
+
+tasks.findByName("check").dependsOn("findbugs", "checkstyle", "jdepend")
+// the classes to scan in analysis
+// we exclude generated classes here
+def classesFolder = fileTree(
+        dir: '../app/build/intermediates/classes/debug',
+        excludes: ['**/R.class',
+                   '**/R$*.class',
+                   '**/*$ViewInjector*.*',
+                   '**/BuildConfig.*',
+                   '**/Manifest*.*']
+)
+
+// the source folders to consider for analysis
+def sourcesFolder = files('../app/src/main/java')
+
+apply plugin: 'jacoco'
+task testReport(type:JacocoReport, dependsOn: "testDebug") {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports"
+
+    classDirectories = classesFolder
+    sourceDirectories = sourcesFolder
+    executionData = files('../app/build/jacoco/testDebug.exec')
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+apply plugin: 'checkstyle'
+task checkstyle(type:Checkstyle, dependsOn: "testDebug") {
+    group = "Reporting"
+    description = "Generate checkstyle report"
+
+    configFile = file("${project.rootDir}/checkstyle.xml")
+    source = sourcesFolder
+    classpath = classesFolder
+    showViolations = true
+
+    reports {
+        xml.enabled = true
+    }
+}
+
+apply plugin: 'findbugs'
+task findbugs(type:FindBugs, dependsOn: "testDebug") {
+    group = "Reporting"
+    description = "Generate Findbugs report"
+
+    source = sourcesFolder
+    classes = classesFolder
+    classpath = classes
+
+    reports {
+        html.enabled = true
+        xml.enabled = false
+    }
+}
+
+apply plugin: 'jdepend'
+task jdepend(type:JDepend, dependsOn: "testDebug") {
+    group = "Reporting"
+    description = "Generate JDepend report"
+
+    classesDir = file('../app/build/intermediates/classes/debug')
+
+    reports {
+        xml.enabled = true
+    }
+}
+
