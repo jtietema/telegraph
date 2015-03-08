@@ -17,14 +17,15 @@
 
 package net.tietema.telegraph.gui;
 
-import net.tietema.telegraph.R;
-import net.tietema.telegraph.model.Contact;
-
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import net.tietema.telegraph.R;
+import net.tietema.telegraph.model.Contact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,14 +60,14 @@ public class ContactAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_item, null);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_item, parent, false);
         }
 
         Contact contact = getItem(position);
 
         TextView nameView = (TextView) convertView.findViewById(R.id.name);
         String name = contact.getName();
-        if (name == null || name.equals("")) {
+        if (TextUtils.isEmpty(name)) {
             name = contact.getEmail();
         }
         nameView.setText(name);

@@ -17,16 +17,16 @@
 
 package net.tietema.telegraph;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import net.tietema.telegraph.model.Contact;
 import net.tietema.telegraph.model.LocalMessage;
-
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.io.File;
 import java.io.InputStream;
@@ -42,19 +42,23 @@ public class DatabaseOpenHelper extends OrmLiteSqliteOpenHelper {
     public DatabaseOpenHelper(Context context) {
         this(context, "bangdb", null, VERSION);
     }
-    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory, int databaseVersion) {
+    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory,
+                              int databaseVersion) {
         super(context, databaseName, factory, databaseVersion);
     }
 
-    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory, int databaseVersion, int configFileId) {
+    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory,
+                              int databaseVersion, int configFileId) {
         super(context, databaseName, factory, databaseVersion, configFileId);
     }
 
-    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory, int databaseVersion, File configFile) {
+    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory,
+                              int databaseVersion, File configFile) {
         super(context, databaseName, factory, databaseVersion, configFile);
     }
 
-    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory, int databaseVersion, InputStream stream) {
+    public DatabaseOpenHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory factory,
+                              int databaseVersion, InputStream stream) {
         super(context, databaseName, factory, databaseVersion, stream);
     }
 

@@ -65,7 +65,8 @@ public class ConversationAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversation_message_list_item, null);
+            convertView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.conversation_message_list_item, parent, false);
         }
 
         // The current message we are displaying

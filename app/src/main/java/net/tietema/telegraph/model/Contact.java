@@ -64,8 +64,8 @@ public class Contact {
     }
 
     /**
-     * The participant string containts the email adress with the resource id added to the end (joe@example.com/Ab34fd)
-     * 
+     * The participant string containts the email adress with the resource id added to the end (joe@example.com/Ab34fd).
+     *
      * @param participant
      * @return
      */

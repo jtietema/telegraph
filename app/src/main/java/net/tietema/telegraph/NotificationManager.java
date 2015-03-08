@@ -17,28 +17,29 @@
 
 package net.tietema.telegraph;
 
-import com.google.inject.Inject;
-
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
-
-import net.tietema.telegraph.event.NewIncomingMessageEvent;
-import net.tietema.telegraph.gui.ConversationActivity;
-
 import android.R;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
+import com.google.inject.Inject;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+
+import net.tietema.telegraph.event.NewIncomingMessageEvent;
+import net.tietema.telegraph.gui.ConversationActivity;
+
 import roboguice.RoboGuice;
 
 /**
- * This class listens on the event bus and generates GUI notifications for the appropriate events
+ * This class listens on the event bus and generates GUI notifications for the appropriate events.
  *
  * @author jeroen
  */
 public class NotificationManager {
+
+    private static final int BASE_NOTIFICATON_ID = 2000;
 
     @Inject
     private android.app.NotificationManager notificationManager;
@@ -66,7 +67,7 @@ public class NotificationManager {
         intent.putExtra(Const.EMAIL, event.getEmail());
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         builder.setContentIntent(pendingIntent);
-        notificationManager.notify(2000 + Long.valueOf(event.getMessage().getId()).intValue(),
+        notificationManager.notify(BASE_NOTIFICATON_ID + Long.valueOf(event.getMessage().getId()).intValue(),
                 builder.getNotification());
     }
 

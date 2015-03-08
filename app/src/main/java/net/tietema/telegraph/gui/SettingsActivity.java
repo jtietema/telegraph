@@ -16,7 +16,7 @@ import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
 /**
- * Input user account settings
+ * Input user account settings.
  * @author Jeroen Tietema <jeroen@tietema.net>
  */
 @ContentView(R.layout.settings)

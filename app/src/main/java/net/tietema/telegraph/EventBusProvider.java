@@ -29,8 +29,9 @@ public class EventBusProvider implements Provider<Bus> {
 
     @Override
     public Bus get() {
-        if (instance == null)
+        if (instance == null) {
             instance = new Bus(); // injection doesn't happen on main thread?!?
+        }
         return instance;
     }
 }

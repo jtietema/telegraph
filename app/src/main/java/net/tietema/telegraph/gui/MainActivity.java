@@ -61,7 +61,7 @@ import roboguice.inject.InjectView;
 @ContentView(R.layout.main)
 public class MainActivity extends RoboSherlockActivity implements AdapterView.OnItemClickListener {
 
-    private static String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
 
     @InjectView(R.id.list)
     private ListView listView;
@@ -129,7 +129,7 @@ public class MainActivity extends RoboSherlockActivity implements AdapterView.On
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        if (item.getItemId() == R.id.menu_save){
+        if (item.getItemId() == R.id.menu_save) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (item.getItemId() == R.id.menu_new) {
             startActivity(new Intent(this, NewConversationActivity.class));

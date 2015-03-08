@@ -17,9 +17,18 @@
 
 package net.tietema.telegraph;
 
-import com.google.inject.Inject;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.crittercism.app.Crittercism;
+import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import com.squareup.otto.Bus;
@@ -45,16 +54,6 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
-import android.text.TextUtils;
-import android.util.Log;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,11 +69,15 @@ import roboguice.util.Ln;
 /**
  * @author jeroen
  */
-public class XmppService extends RoboService implements ConnectionListener, ChatManagerListener, MessageListener, RosterListener {
+public class XmppService extends RoboService
+        implements ConnectionListener, ChatManagerListener, MessageListener, RosterListener {
 
     private static final String TAG = "XmppService";
     private static final int STATUS_NOTIFICATION = 1337;
     private static final long CONNECTION_CHECK_INTERVAL = 20 * 1000L;
+
+    private static final int DEFAULT_PORT = 5222;
+    private static final int GOOGLE_MESSAGE_PROIRITY = 24;
 
     @Inject
     private SharedPreferences preferences;
@@ -132,8 +135,9 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
         OpenHelperManager.releaseHelper();
 
-        if (connection != null && connection.isConnected())
+        if (connection != null && connection.isConnected()) {
             connection.disconnect();
+        }
 
         notificationManager.cancel(STATUS_NOTIFICATION);
     }
@@ -149,12 +153,12 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
         connection = null;
 
         AndroidConnectionConfiguration connConfig =
-            new AndroidConnectionConfiguration("talk.google.com", 5222, "gmail.com");
+            new AndroidConnectionConfiguration("talk.google.com", DEFAULT_PORT, "gmail.com");
         connConfig.setDebuggerEnabled(true);
         connConfig.setReconnectionAllowed(true);
         connection = new XMPPConnection(connConfig);
 
-        connectionThread = new Thread(){
+        connectionThread = new Thread() {
             @Override
             public void run() {
                 try {
@@ -184,7 +188,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
 
         Presence presence = new Presence(Presence.Type.available);
         presence.setStatus("Testing Telegraph!");
-        presence.setPriority(24); // Google uses prio 24 on clients
+        presence.setPriority(GOOGLE_MESSAGE_PROIRITY); // Google uses prio 24 on clients
         connection.sendPacket(presence);
 
         mainThreadHandler.post(new Runnable() {
@@ -197,8 +201,9 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     }
 
     private void reStartConnection() {
-        if (connection != null && connection.isConnected())
+        if (connection != null && connection.isConnected()) {
             connection.disconnect();
+        }
 
         startConnection();
     }
@@ -234,15 +239,17 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     @Override
     public void chatCreated(Chat chat, boolean createdLocally) {
         Log.i(TAG, "chatCreated");
-        if (!createdLocally) // is this needed ? - Jeroen
+        if (!createdLocally) { // is this needed ? - Jeroen
             chat.addMessageListener(this);
+        }
     }
 
     @Override
     public void processMessage(Chat chat, Message message) {
         Log.i(TAG, "processMessage");
-        if (TextUtils.isEmpty(message.getBody()))
+        if (TextUtils.isEmpty(message.getBody())) {
             return; // ignore empty messages
+        }
 
         try {
             Dao<Contact, String> contactsDao = databaseOpenHelper.getDao(Contact.class);
@@ -251,7 +258,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
             Ln.i("Contact email: " + email);
             final Contact contact = contactsDao.queryForId(email);
 
-            if (contact == null){
+            if (contact == null) {
                 Ln.e("Unkown user. How is this possible???");
                 return; // ignore this unknown user
             }
@@ -281,7 +288,7 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     }
 
     /**
-     * This method syncs the entire roster to the database
+     * This method syncs the entire roster to the database.
      */
     private void syncContacts() {
         try {
@@ -346,14 +353,15 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     }
 
     /**
-     * Tries to send out all pending messages
+     * Tries to send out all pending messages.
      * @param event
      */
     @Subscribe
-    public void sendMessages(NewOutgoingMessageEvent event){
+    public void sendMessages(NewOutgoingMessageEvent event) {
         Log.i(TAG, "sendMessages");
-        if (connection == null || !connection.isConnected())
+        if (connection == null || !connection.isConnected()) {
             return;
+        }
 
         // send all pending messages in the datastore
         try {
@@ -395,11 +403,10 @@ public class XmppService extends RoboService implements ConnectionListener, Chat
     @Override
     public void presenceChanged(Presence presence) {
         Log.i(TAG, "presenceChanged");
-
     }
 
   /**
-   * Update the connection status notification with the current status
+   * Update the connection status notification with the current status.
    * @param connected
    */
     private void updateNotification(boolean connected) {
